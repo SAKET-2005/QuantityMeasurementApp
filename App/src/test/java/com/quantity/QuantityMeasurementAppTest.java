@@ -3,30 +3,30 @@
 TEST CLASS - QuantityMeasurementAppTest
 ================================================================================================================
 
-Use Case 4: Extended Unit Support Test Cases
+Use Case 5: Unit-to-Unit Conversion Test Cases
 
 Description:
-This test class validates multi-unit conversion across FEET, INCH,
-YARD, and CM. It ensures correct normalization and equality checking
-after conversion to a base unit.
+This test class validates conversion between different length units.
+It ensures correctness of conversion logic across FEET, INCH, YARD, and CM.
 
 Covered Scenarios:
 - Feet to Inch conversion
 - Yard to Feet conversion
 - CM to Inch conversion
-- Cross-unit comparisons
-- Zero value validation
+- Inch to Feet conversion
+- Zero value conversion
 
 Key Concepts:
-- Multi-unit Testing
-- Conversion Accuracy
-- JUnit Validation
-- Cross-Unit Equality Checks
+- Unit Conversion Testing
+- Precision Validation
+- JUnit 5 Assertions
+- Cross-unit correctness verification
 
 @author SAKET-2005
-@version 4.0
+@version 5.0
 ================================================================================================================
 */
+
 package com.quantity;
 
 import org.junit.jupiter.api.Test;
@@ -35,32 +35,37 @@ import static org.junit.jupiter.api.Assertions.*;
 class QuantityMeasurementAppTest
 {
     @Test
-    void given1YardAnd3Feet_shouldReturnTrue()
+    void given1Feet_shouldReturn12Inch()
     {
-        assertTrue(QuantityMeasurementApp.compareLength(1, LengthUnit.YARD, 3, LengthUnit.FEET));
+        assertEquals(12.0,
+                QuantityMeasurementApp.convert(1, LengthUnit.FEET, LengthUnit.INCH));
     }
 
     @Test
-    void given1FeetAnd12Inch_shouldReturnTrue()
+    void given1Yard_shouldReturn3Feet()
     {
-        assertTrue(QuantityMeasurementApp.compareLength(1, LengthUnit.FEET, 12, LengthUnit.INCH));
+        assertEquals(3.0,
+                QuantityMeasurementApp.convert(1, LengthUnit.YARD, LengthUnit.FEET));
     }
 
     @Test
-    void given2InchAnd5CM_shouldReturnTrue()
+    void given2Point54CM_shouldReturn1Inch()
     {
-        assertTrue(QuantityMeasurementApp.compareLength(2.54, LengthUnit.CM, 1, LengthUnit.INCH));
+        assertEquals(1.0,
+                QuantityMeasurementApp.convert(2.54, LengthUnit.CM, LengthUnit.INCH));
     }
 
     @Test
-    void givenDifferentFeetAndYard_shouldReturnFalse()
+    void given12Inch_shouldReturn1Feet()
     {
-        assertFalse(QuantityMeasurementApp.compareLength(1, LengthUnit.FEET, 2, LengthUnit.YARD));
+        assertEquals(1.0,
+                QuantityMeasurementApp.convert(12, LengthUnit.INCH, LengthUnit.FEET));
     }
 
     @Test
-    void givenZeroValues_shouldReturnTrue()
+    void givenZeroValue_shouldReturnZero()
     {
-        assertTrue(QuantityMeasurementApp.compareLength(0, LengthUnit.FEET, 0, LengthUnit.INCH));
+        assertEquals(0.0,
+                QuantityMeasurementApp.convert(0, LengthUnit.FEET, LengthUnit.YARD));
     }
 }
