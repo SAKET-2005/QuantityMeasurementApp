@@ -3,34 +3,36 @@
 MAIN CLASS - QuantityMeasurementApp
 ================================================================================================================
 
-Use Case 3: Generic Quantity Class for DRY Principle
+Use Case 4: Extended Unit Support (Feet, Inches, Yards, Centimeters)
 
 Description:
-This use case refactors UC1 and UC2 by introducing a single generic QuantityLength class.
-It removes duplication between Feet and Inches classes and follows the DRY (Don't Repeat Yourself) principle.
+This use case extends UC3 by adding support for additional length units:
+Yards and Centimeters. All units are handled using a unified enum-based
+conversion system, improving scalability and maintainability.
 
 The system:
-- Accepts two values with unit types (FEET, INCH)
-- Converts all values into a common base unit (feet)
-- Compares converted values for equality
-- Supports easy extension for future units
+- Supports FEET, INCH, YARD, CM
+- Converts all units into a common base unit (inches)
+- Uses LengthUnit enum for conversion factors
+- Compares values after normalization
+- Ensures extensibility without modifying core logic
 
 Key Concepts:
-- DRY Principle
-- Code Refactoring
-- Unit Conversion
-- Encapsulation
-- Scalability in Design
+- Enum-based Design
+- Unit Conversion System
+- Scalability of Generic Class
+- DRY Principle Reinforcement
+- Extensible Architecture
 
 @author SAKET-2005
-@version 3.0
+@version 4.0
 ================================================================================================================
 */
 package com.quantity;
 
 public class QuantityMeasurementApp
 {
-    public static boolean compareLength(double value1, String unit1, double value2, String unit2)
+    public static boolean compareLength(double value1, LengthUnit unit1, double value2, LengthUnit unit2)
     {
         QuantityLength q1 = new QuantityLength(value1, unit1);
         QuantityLength q2 = new QuantityLength(value2, unit2);
@@ -39,34 +41,48 @@ public class QuantityMeasurementApp
 
     public static void main(String args[])
     {
-        System.out.println("Feet vs Feet: " + compareLength(1, "FEET", 1, "FEET"));
-        System.out.println("Inch vs Inch: " + compareLength(12, "INCH", 12, "INCH"));
+        System.out.println("1 Yard = 3 Feet: " +
+                compareLength(1, LengthUnit.YARD, 3, LengthUnit.FEET));
+
+        System.out.println("2 Feet = 24 Inch: " +
+                compareLength(2, LengthUnit.FEET, 24, LengthUnit.INCH));
+
+        System.out.println("1 CM comparison: " +
+                compareLength(2.54, LengthUnit.CM, 1, LengthUnit.INCH));
+    }
+}
+
+enum LengthUnit
+{
+    FEET(12.0),
+    INCH(1.0),
+    YARD(36.0),
+    CM(0.393701);
+
+    private final double inchValue;
+
+    LengthUnit(double inchValue)
+    {
+        this.inchValue = inchValue;
+    }
+
+    public double toInches(double value)
+    {
+        return value * inchValue;
     }
 }
 
 class QuantityLength
 {
-    private double valueInFeet;
+    private double valueInInches;
 
-    private static final double INCH_TO_FEET = 1.0 / 12.0;
-    private static final double FEET_TO_FEET = 1.0;
-
-    QuantityLength(double value, String unit)
+    QuantityLength(double value, LengthUnit unit)
     {
-        this.valueInFeet = convertToFeet(value, unit);
-    }
-
-    private double convertToFeet(double value, String unit)
-    {
-        if (unit.equalsIgnoreCase("FEET"))
-            return value * FEET_TO_FEET;
-        if (unit.equalsIgnoreCase("INCH"))
-            return value * INCH_TO_FEET;
-        return 0;
+        this.valueInInches = unit.toInches(value);
     }
 
     public boolean isEqual(QuantityLength other)
     {
-        return this.valueInFeet == other.valueInFeet;
+        return this.valueInInches == other.valueInInches;
     }
 }
