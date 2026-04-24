@@ -3,52 +3,52 @@
 MAIN CLASS - QuantityMeasurementApp
 ================================================================================================================
 
-Use Case 4: Extended Unit Support (Feet, Inches, Yards, Centimeters)
+Use Case 5: Unit-to-Unit Conversion (Same Measurement Type)
 
 Description:
-This use case extends UC3 by adding support for additional length units:
-Yards and Centimeters. All units are handled using a unified enum-based
-conversion system, improving scalability and maintainability.
+This use case extends UC4 by introducing explicit conversion between length units.
+Instead of only comparing values, the system provides conversion functionality between
+FEET, INCH, YARD, and CM using a centralized enum-based conversion system.
 
 The system:
-- Supports FEET, INCH, YARD, CM
-- Converts all units into a common base unit (inches)
-- Uses LengthUnit enum for conversion factors
-- Compares values after normalization
-- Ensures extensibility without modifying core logic
+- Converts any supported unit into a base unit (inches)
+- Converts from base unit to target unit
+- Provides reusable conversion API
+- Maintains centralized conversion logic in LengthUnit enum
+- Ensures accurate unit transformation
 
 Key Concepts:
+- Unit Conversion API
 - Enum-based Design
-- Unit Conversion System
-- Scalability of Generic Class
-- DRY Principle Reinforcement
-- Extensible Architecture
+- Reusable Architecture
+- Separation of Concerns
+- Scalable Measurement System
 
 @author SAKET-2005
-@version 4.0
+@version 5.0
 ================================================================================================================
 */
+
 package com.quantity;
 
 public class QuantityMeasurementApp
 {
-    public static boolean compareLength(double value1, LengthUnit unit1, double value2, LengthUnit unit2)
+    public static double convert(double value, LengthUnit sourceUnit, LengthUnit targetUnit)
     {
-        QuantityLength q1 = new QuantityLength(value1, unit1);
-        QuantityLength q2 = new QuantityLength(value2, unit2);
-        return q1.isEqual(q2);
+        QuantityLength quantity = new QuantityLength(value, sourceUnit);
+        return quantity.convertTo(targetUnit);
     }
 
     public static void main(String args[])
     {
-        System.out.println("1 Yard = 3 Feet: " +
-                compareLength(1, LengthUnit.YARD, 3, LengthUnit.FEET));
+        System.out.println("1 Feet to Inch: " +
+                convert(1, LengthUnit.FEET, LengthUnit.INCH));
 
-        System.out.println("2 Feet = 24 Inch: " +
-                compareLength(2, LengthUnit.FEET, 24, LengthUnit.INCH));
+        System.out.println("1 Yard to Feet: " +
+                convert(1, LengthUnit.YARD, LengthUnit.FEET));
 
-        System.out.println("1 CM comparison: " +
-                compareLength(2.54, LengthUnit.CM, 1, LengthUnit.INCH));
+        System.out.println("2.54 CM to Inch: " +
+                convert(2.54, LengthUnit.CM, LengthUnit.INCH));
     }
 }
 
@@ -70,6 +70,11 @@ enum LengthUnit
     {
         return value * inchValue;
     }
+
+    public double fromInches(double value)
+    {
+        return value / inchValue;
+    }
 }
 
 class QuantityLength
@@ -81,8 +86,8 @@ class QuantityLength
         this.valueInInches = unit.toInches(value);
     }
 
-    public boolean isEqual(QuantityLength other)
+    public double convertTo(LengthUnit targetUnit)
     {
-        return this.valueInInches == other.valueInInches;
+        return targetUnit.fromInches(this.valueInInches);
     }
 }
