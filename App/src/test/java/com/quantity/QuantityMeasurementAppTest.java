@@ -3,28 +3,28 @@
 TEST CLASS - QuantityMeasurementAppTest
 ================================================================================================================
 
-Use Case 6: Addition of Two Length Units Test Cases
+Use Case 7: Addition with Target Unit Specification Test Cases
 
 Description:
-This test class validates addition operations between different length units.
-It ensures correct conversion, addition, and result representation in the unit
-of the first operand.
+This test class validates addition of two length values with explicit
+target unit conversion. It ensures the result is correctly converted
+into the requested unit.
 
 Covered Scenarios:
-- Feet + Inch
-- Yard + Feet
-- Inch + CM
-- Same unit addition
-- Cross-unit addition correctness
+- Feet + Inch in Feet
+- Feet + Inch in Yard
+- Inch + CM in Inch
+- Yard + Feet in CM
+- Zero value addition
 
 Key Concepts:
-- Unit Conversion + Addition
-- Cross-unit Arithmetic Validation
-- JUnit 5 Assertions
-- Measurement Consistency
+- Target Unit Conversion
+- Flexible Output Validation
+- Unit Arithmetic Consistency
+- JUnit 5 Testing
 
 @author SAKET-2005
-@version 6.0
+@version 7.0
 ================================================================================================================
 */
 
@@ -36,37 +36,49 @@ import static org.junit.jupiter.api.Assertions.*;
 class QuantityMeasurementAppTest
 {
     @Test
-    void given1FeetAnd12Inch_shouldReturn2Feet()
+    void given1FeetAnd12Inch_inFeet_shouldReturn2Feet()
     {
         assertEquals(2.0,
-                QuantityMeasurementApp.add(1, LengthUnit.FEET, 12, LengthUnit.INCH));
+                QuantityMeasurementApp.add(1, LengthUnit.FEET,
+                        12, LengthUnit.INCH,
+                        LengthUnit.FEET));
     }
 
     @Test
-    void given1YardAnd1Feet_shouldReturn4Feet()
+    void given1FeetAnd12Inch_inYard_shouldReturnApproxZeroPoint667()
+    {
+        assertEquals(0.6667,
+                QuantityMeasurementApp.add(1, LengthUnit.FEET,
+                        12, LengthUnit.INCH,
+                        LengthUnit.YARD),
+                0.01);
+    }
+
+    @Test
+    void given12InchAnd2Point54CM_inInch_shouldReturnApprox1Inch()
+    {
+        assertEquals(1.0,
+                QuantityMeasurementApp.add(12, LengthUnit.INCH,
+                        2.54, LengthUnit.CM,
+                        LengthUnit.INCH),
+                0.01);
+    }
+
+    @Test
+    void given1YardAnd1Feet_inFeet_shouldReturn4Feet()
     {
         assertEquals(4.0,
-                QuantityMeasurementApp.add(1, LengthUnit.YARD, 1, LengthUnit.FEET));
-    }
-
-    @Test
-    void given12InchAnd12Inch_shouldReturn2Feet()
-    {
-        assertEquals(2.0,
-                QuantityMeasurementApp.add(12, LengthUnit.INCH, 12, LengthUnit.INCH));
-    }
-
-    @Test
-    void given1FeetAnd1Feet_shouldReturn2Feet()
-    {
-        assertEquals(2.0,
-                QuantityMeasurementApp.add(1, LengthUnit.FEET, 1, LengthUnit.FEET));
+                QuantityMeasurementApp.add(1, LengthUnit.YARD,
+                        1, LengthUnit.FEET,
+                        LengthUnit.FEET));
     }
 
     @Test
     void givenZeroValues_shouldReturnZero()
     {
         assertEquals(0.0,
-                QuantityMeasurementApp.add(0, LengthUnit.FEET, 0, LengthUnit.INCH));
+                QuantityMeasurementApp.add(0, LengthUnit.FEET,
+                        0, LengthUnit.INCH,
+                        LengthUnit.YARD));
     }
 }
