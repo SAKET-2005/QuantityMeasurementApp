@@ -3,33 +3,29 @@
 MAIN CLASS - QuantityMeasurementApp
 ================================================================================================================
 
-Use Case 7: Addition with Target Unit Specification
+Use Case 8: Refactoring Unit Enum to Standalone
 
 Description:
-This use case extends UC6 by allowing addition of two length measurements
-and returning the result in a user-specified target unit.
-
-Unlike UC6, where the result is returned in the unit of the first operand,
-this use case gives full flexibility to define the output unit explicitly.
-
-Example:
-1 Feet + 12 Inch in YARD = 0.667 YARD (approx)
+This use case refactors UC1–UC7 by extracting LengthUnit into a standalone class.
+The responsibility of unit conversion is moved from QuantityLength to LengthUnit,
+improving cohesion and reducing coupling.
 
 The system:
-- Converts both inputs into a base unit (inches)
-- Adds the values in base unit
-- Converts the result into the specified target unit
-- Supports FEET, INCH, YARD, CM
+- Uses LengthUnit as a standalone class for all conversions
+- Delegates conversion logic to LengthUnit
+- Simplifies QuantityLength to focus on arithmetic and comparison
+- Maintains backward compatibility with UC1–UC7
+- Supports scalable architecture for future measurement types
 
 Key Concepts:
-- Flexible Output Unit Selection
-- Unit Normalization
-- Reusable Conversion Logic
-- Enhanced API Design
-- Scalable Measurement System
+- Single Responsibility Principle (SRP)
+- Decoupling of Classes
+- Delegation Pattern
+- Scalable Architecture Design
+- Clean Code Refactoring
 
 @author SAKET-2005
-@version 7.0
+@version 8.0
 ================================================================================================================
 */
 
@@ -37,62 +33,68 @@ package com.quantity;
 
 public class QuantityMeasurementApp
 {
+    public static double convert(double value, LengthUnit sourceUnit, LengthUnit targetUnit)
+    {
+        double baseValue = sourceUnit.toBaseUnit(value);
+        return targetUnit.fromBaseUnit(baseValue);
+    }
+
     public static double add(double value1, LengthUnit unit1,
                              double value2, LengthUnit unit2,
                              LengthUnit targetUnit)
     {
-        QuantityLength l1 = new QuantityLength(value1, unit1);
-        QuantityLength l2 = new QuantityLength(value2, unit2);
-        return l1.addInTargetUnit(l2, targetUnit);
+        double base1 = unit1.toBaseUnit(value1);
+        double base2 = unit2.toBaseUnit(value2);
+        double sum = base1 + base2;
+        return targetUnit.fromBaseUnit(sum);
     }
 
     public static void main(String args[])
     {
-        System.out.println("1 Feet + 12 Inch in FEET = " +
-                add(1, LengthUnit.FEET, 12, LengthUnit.INCH, LengthUnit.FEET));
+        System.out.println("Convert 1 Feet to Inch: " +
+                convert(1, LengthUnit.FEET, LengthUnit.INCH));
 
-        System.out.println("1 Feet + 12 Inch in YARD = " +
-                add(1, LengthUnit.FEET, 12, LengthUnit.INCH, LengthUnit.YARD));
+        System.out.println("Add 1 Feet + 12 Inch in Feet: " +
+                add(1, LengthUnit.FEET, 12, LengthUnit.INCH, LengthUnit.FEET));
     }
 }
 
-enum LengthUnit
+class LengthUnit
 {
-    FEET(12.0),
-    INCH(1.0),
-    YARD(36.0),
-    CM(0.393701);
+    private final double factorToFeet;
 
-    private final double inchValue;
-
-    LengthUnit(double inchValue)
+    LengthUnit(double factorToFeet)
     {
-        this.inchValue = inchValue;
+        this.factorToFeet = factorToFeet;
     }
 
-    public double toInches(double value)
+    public double toBaseUnit(double value)
     {
-        return value * inchValue;
+        return value * factorToFeet;
     }
 
-    public double fromInches(double value)
+    public double fromBaseUnit(double baseValue)
     {
-        return value / inchValue;
+        return baseValue / factorToFeet;
     }
+
+    public static final LengthUnit FEET = new LengthUnit(1.0);
+    public static final LengthUnit INCH = new LengthUnit(1.0 / 12.0);
+    public static final LengthUnit YARD = new LengthUnit(3.0);
+    public static final LengthUnit CM = new LengthUnit(0.0328084);
 }
 
 class QuantityLength
 {
-    private double valueInInches;
+    private double valueInFeet;
 
     QuantityLength(double value, LengthUnit unit)
     {
-        this.valueInInches = unit.toInches(value);
+        this.valueInFeet = unit.toBaseUnit(value);
     }
 
-    public double addInTargetUnit(QuantityLength other, LengthUnit targetUnit)
+    public boolean isEqual(QuantityLength other)
     {
-        double sumInInches = this.valueInInches + other.valueInInches;
-        return targetUnit.fromInches(sumInInches);
+        return this.valueInFeet == other.valueInFeet;
     }
 }
