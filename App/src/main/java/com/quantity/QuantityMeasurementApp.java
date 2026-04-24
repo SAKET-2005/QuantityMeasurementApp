@@ -1,55 +1,82 @@
-package com.quantity;
 /*
 ================================================================================================================
-MAIN CLASS - main.java.com.quantity.QuantityMeasurementApp
+MAIN CLASS - QuantityMeasurementApp
 ================================================================================================================
 
-Use Case 1: Checking Equality of Two Values in Feet
+Use Case 2: Feet and Inches Measurement Equality
 
 Description:
-This program validates and compares two numerical values measured in feet.
-It ensures that both inputs are numeric and then checks whether they are equal.
+This use case extends UC1 to support equality checks for both Feet and Inches.
+Feet and Inches are treated as separate units and are not inter-converted.
 
-The application handles invalid inputs gracefully and returns a boolean result
-indicating whether the two values are equal.
+The system:
+- Compares two feet values using a Feet class
+- Compares two inch values using an Inches class
+- Each class validates and compares values independently
+- Returns boolean result for equality check
 
 Key Concepts:
-- Input Validation
-- Equality Comparison
-- Exception Handling
-- Defensive Programming
-- Boolean Result Evaluation
+- Class-based Unit Representation
+- Encapsulation of Measurement Types
+- Equality Validation
+- Separation of Concerns
+- Unit Testing Support
 
 @author SAKET-2005
-@version 1.0
+@version 2.0
 ================================================================================================================
 */
+package com.quantity;
 
 public class QuantityMeasurementApp
 {
-    public static boolean areEqual(double value1, double value2)
+    public static boolean compareFeet(double feet1, double feet2)
     {
-        return value1 == value2;
+        Feet f1 = new Feet(feet1);
+        Feet f2 = new Feet(feet2);
+        return f1.isEqual(f2);
+    }
+
+    public static boolean compareInches(double inch1, double inch2)
+    {
+        Inches i1 = new Inches(inch1);
+        Inches i2 = new Inches(inch2);
+        return i1.isEqual(i2);
     }
 
     public static void main(String args[])
     {
-        System.out.println("=== Quantity Measurement App ===");
-        System.out.println("Version: 1.0");
-        System.out.println();
+        System.out.println("Feet Comparison Result: " + compareFeet(5.0, 5.0));
+        System.out.println("Inches Comparison Result: " + compareInches(10.0, 10.0));
+    }
+}
 
-        try
-        {
-            double value1 = Double.parseDouble(args[0]);
-            double value2 = Double.parseDouble(args[1]);
+class Feet
+{
+    private double value;
 
-            boolean result = areEqual(value1, value2);
+    Feet(double value)
+    {
+        this.value = value;
+    }
 
-            System.out.println("Equality Result: " + result);
-        }
-        catch (Exception e)
-        {
-            System.out.println("Error: Invalid input");
-        }
+    public boolean isEqual(Feet other)
+    {
+        return this.value == other.value;
+    }
+}
+
+class Inches
+{
+    private double value;
+
+    Inches(double value)
+    {
+        this.value = value;
+    }
+
+    public boolean isEqual(Inches other)
+    {
+        return this.value == other.value;
     }
 }
