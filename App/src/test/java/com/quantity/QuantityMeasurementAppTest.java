@@ -3,26 +3,25 @@
 TEST CLASS - QuantityMeasurementAppTest
 ================================================================================================================
 
-Use Case 2: Feet and Inches Measurement Equality Test Cases
+Use Case 3: Generic Quantity Class Test Cases
 
 Description:
-This test class validates the correctness of equality operations for Feet and Inches.
-It ensures proper handling of:
-- Equal values
-- Unequal values
-- Zero values
-- Negative values
+This test class validates the generic QuantityLength implementation.
+It ensures correct conversion and comparison across different units.
 
-The test cases ensure complete coverage of UC2 functionality using JUnit 5.
+Covered Scenarios:
+- Same unit comparison (FEET, INCH)
+- Cross-unit comparison (INCH ↔ FEET)
+- Equal and unequal value checks
 
 Key Concepts:
-- Unit Testing
+- Unit Testing (JUnit 5)
+- Cross-Unit Validation
+- Conversion Verification
 - Test Coverage
-- Assertion Validation
-- JUnit 5 Framework
 
 @author SAKET-2005
-@version 2.0
+@version 3.0
 ================================================================================================================
 */
 package com.quantity;
@@ -35,36 +34,36 @@ class QuantityMeasurementAppTest
     @Test
     void givenSameFeetValues_shouldReturnTrue()
     {
-        assertTrue(QuantityMeasurementApp.compareFeet(5.0, 5.0));
+        assertTrue(QuantityMeasurementApp.compareLength(5, "FEET", 5, "FEET"));
     }
 
     @Test
     void givenDifferentFeetValues_shouldReturnFalse()
     {
-        assertFalse(QuantityMeasurementApp.compareFeet(5.0, 6.0));
+        assertFalse(QuantityMeasurementApp.compareLength(5, "FEET", 6, "FEET"));
+    }
+
+    @Test
+    void given12InchAnd1Feet_shouldReturnTrue()
+    {
+        assertTrue(QuantityMeasurementApp.compareLength(12, "INCH", 1, "FEET"));
+    }
+
+    @Test
+    void given1InchAnd1Feet_shouldReturnFalse()
+    {
+        assertFalse(QuantityMeasurementApp.compareLength(1, "INCH", 1, "FEET"));
     }
 
     @Test
     void givenSameInchValues_shouldReturnTrue()
     {
-        assertTrue(QuantityMeasurementApp.compareInches(10.0, 10.0));
+        assertTrue(QuantityMeasurementApp.compareLength(10, "INCH", 10, "INCH"));
     }
 
     @Test
-    void givenDifferentInchValues_shouldReturnFalse()
+    void givenDifferentUnitsSameValue_shouldReturnFalse()
     {
-        assertFalse(QuantityMeasurementApp.compareInches(10.0, 12.0));
-    }
-
-    @Test
-    void givenZeroFeetValues_shouldReturnTrue()
-    {
-        assertTrue(QuantityMeasurementApp.compareFeet(0.0, 0.0));
-    }
-
-    @Test
-    void givenNegativeInchValues_shouldReturnTrue()
-    {
-        assertTrue(QuantityMeasurementApp.compareInches(-5.0, -5.0));
+        assertFalse(QuantityMeasurementApp.compareLength(1, "FEET", 1, "INCH"));
     }
 }

@@ -3,80 +3,70 @@
 MAIN CLASS - QuantityMeasurementApp
 ================================================================================================================
 
-Use Case 2: Feet and Inches Measurement Equality
+Use Case 3: Generic Quantity Class for DRY Principle
 
 Description:
-This use case extends UC1 to support equality checks for both Feet and Inches.
-Feet and Inches are treated as separate units and are not inter-converted.
+This use case refactors UC1 and UC2 by introducing a single generic QuantityLength class.
+It removes duplication between Feet and Inches classes and follows the DRY (Don't Repeat Yourself) principle.
 
 The system:
-- Compares two feet values using a Feet class
-- Compares two inch values using an Inches class
-- Each class validates and compares values independently
-- Returns boolean result for equality check
+- Accepts two values with unit types (FEET, INCH)
+- Converts all values into a common base unit (feet)
+- Compares converted values for equality
+- Supports easy extension for future units
 
 Key Concepts:
-- Class-based Unit Representation
-- Encapsulation of Measurement Types
-- Equality Validation
-- Separation of Concerns
-- Unit Testing Support
+- DRY Principle
+- Code Refactoring
+- Unit Conversion
+- Encapsulation
+- Scalability in Design
 
 @author SAKET-2005
-@version 2.0
+@version 3.0
 ================================================================================================================
 */
 package com.quantity;
 
 public class QuantityMeasurementApp
 {
-    public static boolean compareFeet(double feet1, double feet2)
+    public static boolean compareLength(double value1, String unit1, double value2, String unit2)
     {
-        Feet f1 = new Feet(feet1);
-        Feet f2 = new Feet(feet2);
-        return f1.isEqual(f2);
-    }
-
-    public static boolean compareInches(double inch1, double inch2)
-    {
-        Inches i1 = new Inches(inch1);
-        Inches i2 = new Inches(inch2);
-        return i1.isEqual(i2);
+        QuantityLength q1 = new QuantityLength(value1, unit1);
+        QuantityLength q2 = new QuantityLength(value2, unit2);
+        return q1.isEqual(q2);
     }
 
     public static void main(String args[])
     {
-        System.out.println("Feet Comparison Result: " + compareFeet(5.0, 5.0));
-        System.out.println("Inches Comparison Result: " + compareInches(10.0, 10.0));
+        System.out.println("Feet vs Feet: " + compareLength(1, "FEET", 1, "FEET"));
+        System.out.println("Inch vs Inch: " + compareLength(12, "INCH", 12, "INCH"));
     }
 }
 
-class Feet
+class QuantityLength
 {
-    private double value;
+    private double valueInFeet;
 
-    Feet(double value)
+    private static final double INCH_TO_FEET = 1.0 / 12.0;
+    private static final double FEET_TO_FEET = 1.0;
+
+    QuantityLength(double value, String unit)
     {
-        this.value = value;
+        this.valueInFeet = convertToFeet(value, unit);
     }
 
-    public boolean isEqual(Feet other)
+    private double convertToFeet(double value, String unit)
     {
-        return this.value == other.value;
-    }
-}
-
-class Inches
-{
-    private double value;
-
-    Inches(double value)
-    {
-        this.value = value;
+        if (unit.equalsIgnoreCase("FEET"))
+            return value * FEET_TO_FEET;
+        if (unit.equalsIgnoreCase("INCH"))
+            return value * INCH_TO_FEET;
+        return 0;
     }
 
-    public boolean isEqual(Inches other)
+    public boolean isEqual(QuantityLength other)
     {
-        return this.value == other.value;
+        return this.valueInFeet == other.valueInFeet;
     }
 }
