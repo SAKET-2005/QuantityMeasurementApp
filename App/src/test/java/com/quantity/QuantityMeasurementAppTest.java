@@ -1,31 +1,70 @@
+/*
+================================================================================================================
+TEST CLASS - QuantityMeasurementAppTest
+================================================================================================================
+
+Use Case 2: Feet and Inches Measurement Equality Test Cases
+
+Description:
+This test class validates the correctness of equality operations for Feet and Inches.
+It ensures proper handling of:
+- Equal values
+- Unequal values
+- Zero values
+- Negative values
+
+The test cases ensure complete coverage of UC2 functionality using JUnit 5.
+
+Key Concepts:
+- Unit Testing
+- Test Coverage
+- Assertion Validation
+- JUnit 5 Framework
+
+@author SAKET-2005
+@version 2.0
+================================================================================================================
+*/
 package com.quantity;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class QuantityMeasurementAppTest
+class QuantityMeasurementAppTest
 {
     @Test
-    void testEqualValues()
+    void givenSameFeetValues_shouldReturnTrue()
     {
-        assertTrue(QuantityMeasurementApp.areEqual(5.0, 5.0));
+        assertTrue(QuantityMeasurementApp.compareFeet(5.0, 5.0));
     }
 
     @Test
-    void testDifferentValues()
+    void givenDifferentFeetValues_shouldReturnFalse()
     {
-        assertFalse(QuantityMeasurementApp.areEqual(5.0, 6.0));
+        assertFalse(QuantityMeasurementApp.compareFeet(5.0, 6.0));
     }
 
     @Test
-    void testZeroValues()
+    void givenSameInchValues_shouldReturnTrue()
     {
-        assertTrue(QuantityMeasurementApp.areEqual(0.0, 0.0));
+        assertTrue(QuantityMeasurementApp.compareInches(10.0, 10.0));
     }
 
     @Test
-    void testNegativeValues()
+    void givenDifferentInchValues_shouldReturnFalse()
     {
-        assertTrue(QuantityMeasurementApp.areEqual(-3.0, -3.0));
+        assertFalse(QuantityMeasurementApp.compareInches(10.0, 12.0));
+    }
+
+    @Test
+    void givenZeroFeetValues_shouldReturnTrue()
+    {
+        assertTrue(QuantityMeasurementApp.compareFeet(0.0, 0.0));
+    }
+
+    @Test
+    void givenNegativeInchValues_shouldReturnTrue()
+    {
+        assertTrue(QuantityMeasurementApp.compareInches(-5.0, -5.0));
     }
 }
