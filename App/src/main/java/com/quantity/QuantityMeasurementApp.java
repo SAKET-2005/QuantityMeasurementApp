@@ -3,29 +3,32 @@
 MAIN CLASS - QuantityMeasurementApp
 ================================================================================================================
 
-Use Case 5: Unit-to-Unit Conversion (Same Measurement Type)
+Use Case 6: Addition of Two Length Units (Same Category)
 
 Description:
-This use case extends UC4 by introducing explicit conversion between length units.
-Instead of only comparing values, the system provides conversion functionality between
-FEET, INCH, YARD, and CM using a centralized enum-based conversion system.
+This use case extends UC5 by introducing addition operations between length measurements.
+It allows addition of two lengths in different units (within the same category: Length)
+and returns the result in the unit of the first operand.
+
+Example:
+1 Feet + 12 Inch = 2 Feet (result in Feet)
 
 The system:
-- Converts any supported unit into a base unit (inches)
-- Converts from base unit to target unit
-- Provides reusable conversion API
-- Maintains centralized conversion logic in LengthUnit enum
-- Ensures accurate unit transformation
+- Converts both values into a base unit (inches)
+- Performs addition in base unit
+- Converts result back to unit of first operand
+- Supports FEET, INCH, YARD, CM
+- Ensures type safety within same measurement category
 
 Key Concepts:
-- Unit Conversion API
-- Enum-based Design
-- Reusable Architecture
-- Separation of Concerns
-- Scalable Measurement System
+- Unit Normalization
+- Cross-unit Addition
+- Reusability of Conversion Logic
+- Encapsulation of Measurement Rules
+- Single Responsibility Principle
 
 @author SAKET-2005
-@version 5.0
+@version 6.0
 ================================================================================================================
 */
 
@@ -33,22 +36,20 @@ package com.quantity;
 
 public class QuantityMeasurementApp
 {
-    public static double convert(double value, LengthUnit sourceUnit, LengthUnit targetUnit)
+    public static double add(double value1, LengthUnit unit1, double value2, LengthUnit unit2)
     {
-        QuantityLength quantity = new QuantityLength(value, sourceUnit);
-        return quantity.convertTo(targetUnit);
+        QuantityLength l1 = new QuantityLength(value1, unit1);
+        QuantityLength l2 = new QuantityLength(value2, unit2);
+        return l1.add(l2);
     }
 
     public static void main(String args[])
     {
-        System.out.println("1 Feet to Inch: " +
-                convert(1, LengthUnit.FEET, LengthUnit.INCH));
+        System.out.println("1 Feet + 12 Inch = " +
+                add(1, LengthUnit.FEET, 12, LengthUnit.INCH));
 
-        System.out.println("1 Yard to Feet: " +
-                convert(1, LengthUnit.YARD, LengthUnit.FEET));
-
-        System.out.println("2.54 CM to Inch: " +
-                convert(2.54, LengthUnit.CM, LengthUnit.INCH));
+        System.out.println("1 Yard + 1 Feet = " +
+                add(1, LengthUnit.YARD, 1, LengthUnit.FEET));
     }
 }
 
@@ -80,14 +81,17 @@ enum LengthUnit
 class QuantityLength
 {
     private double valueInInches;
+    private LengthUnit unit;
 
     QuantityLength(double value, LengthUnit unit)
     {
+        this.unit = unit;
         this.valueInInches = unit.toInches(value);
     }
 
-    public double convertTo(LengthUnit targetUnit)
+    public double add(QuantityLength other)
     {
-        return targetUnit.fromInches(this.valueInInches);
+        double sumInInches = this.valueInInches + other.valueInInches;
+        return this.unit.fromInches(sumInInches);
     }
 }
