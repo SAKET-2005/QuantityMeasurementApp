@@ -1,87 +1,161 @@
-/*
+package com.quantity;/*
 ================================================================================================================
-TEST CLASS - QuantityMeasurementAppTest
+TEST CLASS - QuantityMeasurementAppTest (UC11 - Fixed Single File Compatible)
 ================================================================================================================
 
-Use Case 9: Weight Measurement Test Cases
+This test class is updated to work with:
+- Single-file QuantityMeasurementApp setup (no package)
+- Generic Quantity<U> implementation
+- Length, Weight, and Volume measurement categories
 
-Description:
-This test class validates weight measurement functionality alongside length.
-It ensures proper conversion, addition, and equality handling for weight units
-while preserving existing length functionality.
-
-Covered Scenarios:
-- Weight unit conversion (kg, gram, pound)
-- Weight addition across units
-- Equality comparison for weight
-- Regression validation for length features
-- Zero and edge case handling
-
-Key Concepts:
-- Multi-Domain Testing
-- Regression Testing
-- Unit Conversion Accuracy
-- JUnit 5 Validation
-- System Integrity Assurance
+It validates:
+- Equality across same categories
+- Unit conversion correctness
+- Addition across units
+- Cross-category safety (compile/runtime isolation)
 
 @author SAKET-2005
-@version 9.0
+@version 11.0
 ================================================================================================================
 */
-
-package com.quantity;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class QuantityMeasurementAppTest
 {
-    // LENGTH TESTS
+    /* ================= LENGTH TESTS ================= */
+
     @Test
-    void given1Feet_shouldReturn12Inch()
+    void given1FeetAnd12Inch_shouldBeEqual()
     {
-        assertEquals(12.0,
-                QuantityMeasurementApp.convert(1, LengthUnit.FEET, LengthUnit.INCH));
+        Quantity<LengthUnit> feet = new Quantity<>(1, LengthUnit.FEET);
+        Quantity<LengthUnit> inch = new Quantity<>(12, LengthUnit.INCH);
+
+        assertEquals(feet, inch);
+    }
+
+    @Test
+    void given1FeetAnd1Inch_shouldNotBeEqual()
+    {
+        Quantity<LengthUnit> feet = new Quantity<>(1, LengthUnit.FEET);
+        Quantity<LengthUnit> inch = new Quantity<>(1, LengthUnit.INCH);
+
+        assertNotEquals(feet, inch);
+    }
+
+    @Test
+    void given1FeetAnd12Inch_shouldAddTo2Feet()
+    {
+        Quantity<LengthUnit> feet = new Quantity<>(1, LengthUnit.FEET);
+        Quantity<LengthUnit> inch = new Quantity<>(12, LengthUnit.INCH);
+
+        Quantity<LengthUnit> result = feet.add(inch);
+
+        assertEquals(new Quantity<>(2, LengthUnit.FEET), result);
+    }
+
+    @Test
+    void given1Feet_shouldConvertTo12Inch()
+    {
+        Quantity<LengthUnit> feet = new Quantity<>(1, LengthUnit.FEET);
+
+        Quantity<LengthUnit> result = feet.convertTo(LengthUnit.INCH);
+
+        assertEquals(new Quantity<>(12, LengthUnit.INCH), result);
+    }
+
+    /* ================= WEIGHT TESTS ================= */
+
+    @Test
+    void given1KgAnd1000Gram_shouldBeEqual()
+    {
+        Quantity<WeightUnit> kg = new Quantity<>(1, WeightUnit.KG);
+        Quantity<WeightUnit> gram = new Quantity<>(1000, WeightUnit.GRAM);
+
+        assertEquals(kg, gram);
+    }
+
+    @Test
+    void given1KgAnd500Gram_shouldNotBeEqual()
+    {
+        Quantity<WeightUnit> kg = new Quantity<>(1, WeightUnit.KG);
+        Quantity<WeightUnit> gram = new Quantity<>(500, WeightUnit.GRAM);
+
+        assertNotEquals(kg, gram);
     }
 
     // WEIGHT TESTS
     @Test
-    void given1Kg_shouldReturn1000Gram()
+    void given1KgAnd1000Gram_shouldAddTo2Kg()
     {
-        assertEquals(1000.0,
-                QuantityMeasurementApp.convertWeight(1, WeightUnit.KG, WeightUnit.GRAM));
+        Quantity<WeightUnit> kg = new Quantity<>(1, WeightUnit.KG);
+        Quantity<WeightUnit> gram = new Quantity<>(1000, WeightUnit.GRAM);
+
+        Quantity<WeightUnit> result = kg.add(gram);
+
+        assertEquals(new Quantity<>(2, WeightUnit.KG), result);
     }
 
     @Test
-    void given1000Gram_shouldReturn1Kg()
+    void given1Kg_shouldConvertTo1000Gram()
     {
-        assertEquals(1.0,
-                QuantityMeasurementApp.convertWeight(1000, WeightUnit.GRAM, WeightUnit.KG));
+        Quantity<WeightUnit> kg = new Quantity<>(1, WeightUnit.KG);
+
+        Quantity<WeightUnit> result = kg.convertTo(WeightUnit.GRAM);
+
+        assertEquals(new Quantity<>(1000, WeightUnit.GRAM), result);
+    }
+
+    /* ================= VOLUME TESTS ================= */
+
+    @Test
+    void given1LitreAnd1000Ml_shouldBeEqual()
+    {
+        Quantity<VolumeUnit> litre = new Quantity<>(1, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> ml = new Quantity<>(1000, VolumeUnit.MILLILITRE);
+
+        assertEquals(litre, ml);
     }
 
     @Test
-    void given1Pound_shouldReturn0Point453Kg()
+    void given1LitreAnd500Ml_shouldNotBeEqual()
     {
-        assertEquals(0.453592,
-                QuantityMeasurementApp.convertWeight(1, WeightUnit.POUND, WeightUnit.KG),
-                0.0001);
+        Quantity<VolumeUnit> litre = new Quantity<>(1, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> ml = new Quantity<>(500, VolumeUnit.MILLILITRE);
+
+        assertNotEquals(litre, ml);
     }
 
     @Test
-    void given1KgAnd1000Gram_shouldReturn2Kg()
+    void given1LitreAnd500Ml_shouldAddTo1Point5Litre()
     {
-        assertEquals(2.0,
-                QuantityMeasurementApp.addWeight(1, WeightUnit.KG,
-                        1000, WeightUnit.GRAM,
-                        WeightUnit.KG));
+        Quantity<VolumeUnit> litre = new Quantity<>(1, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> ml = new Quantity<>(500, VolumeUnit.MILLILITRE);
+
+        Quantity<VolumeUnit> result = litre.add(ml);
+
+        assertEquals(new Quantity<>(1.5, VolumeUnit.LITRE), result);
     }
 
     @Test
-    void givenZeroWeight_shouldReturnZero()
+    void given1Gallon_shouldConvertToLitres()
     {
-        assertEquals(0.0,
-                QuantityMeasurementApp.addWeight(0, WeightUnit.KG,
-                        0, WeightUnit.GRAM,
-                        WeightUnit.KG));
+        Quantity<VolumeUnit> gallon = new Quantity<>(1, VolumeUnit.GALLON);
+
+        Quantity<VolumeUnit> result = gallon.convertTo(VolumeUnit.LITRE);
+
+        assertEquals(new Quantity<>(3.79, VolumeUnit.LITRE), result);
+    }
+
+    /* ================= CROSS CATEGORY TEST ================= */
+
+    @Test
+    void givenDifferentCategories_shouldNotBeEqual()
+    {
+        Quantity<LengthUnit> length = new Quantity<>(1, LengthUnit.FEET);
+        Quantity<WeightUnit> weight = new Quantity<>(1, WeightUnit.KG);
+
+        assertNotEquals(length, weight);
     }
 }
