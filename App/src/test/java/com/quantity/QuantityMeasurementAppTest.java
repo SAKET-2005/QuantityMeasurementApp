@@ -1,18 +1,20 @@
 /*
 ================================================================================================================
-TEST CLASS - QuantityMeasurementAppTest (UC12)
+TEST CLASS - QuantityMeasurementAppTest (UC13 - DRY Refactor Validation)
 ================================================================================================================
 
-Tests:
-- Equality
-- Conversion
-- Addition
-- Subtraction
-- Division
-- Cross-category safety
+This test class validates that UC13 refactoring:
+- Does NOT change external behavior from UC12
+- Maintains correctness of add, subtract, divide
+- Preserves equality and conversion logic
+- Ensures cross-category safety
+- Confirms regression stability after DRY refactor
+
+Important:
+UC13 is an internal refactor only → ALL UC12 tests must still pass.
 
 @author SAKET-2005
-@version 12.0
+@version 13.0
 ================================================================================================================
 */
 
@@ -21,35 +23,35 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class QuantityMeasurementAppTest
 {
-    /* ================= LENGTH ================= */
+    /* ================= ADDITION ================= */
 
     @Test
-    void given2FeetAnd1Feet_shouldReturn1Feet()
-    {
-        Quantity<LengthUnit> q1 = new Quantity<>(2, LengthUnit.FEET);
-        Quantity<LengthUnit> q2 = new Quantity<>(1, LengthUnit.FEET);
-
-        assertEquals(new Quantity<>(1, LengthUnit.FEET), q1.subtract(q2));
-    }
-
-    @Test
-    void given10FeetAnd2Feet_shouldReturn5Ratio()
+    void given10FeetAnd2Feet_shouldReturn12Feet()
     {
         Quantity<LengthUnit> q1 = new Quantity<>(10, LengthUnit.FEET);
         Quantity<LengthUnit> q2 = new Quantity<>(2, LengthUnit.FEET);
 
-        assertEquals(5.0, q1.divide(q2));
+        assertEquals(new Quantity<>(12, LengthUnit.FEET), q1.add(q2));
     }
 
-    /* ================= WEIGHT ================= */
+    @Test
+    void given1KgAnd1000Gram_shouldReturn2Kg()
+    {
+        Quantity<WeightUnit> q1 = new Quantity<>(1, WeightUnit.KG);
+        Quantity<WeightUnit> q2 = new Quantity<>(1000, WeightUnit.GRAM);
+
+        assertEquals(new Quantity<>(2, WeightUnit.KG), q1.add(q2));
+    }
+
+    /* ================= SUBTRACTION ================= */
 
     @Test
-    void given10KgAnd5Kg_shouldReturn2Ratio()
+    void given10FeetAnd2Feet_shouldReturn8Feet()
     {
-        Quantity<WeightUnit> q1 = new Quantity<>(10, WeightUnit.KG);
-        Quantity<WeightUnit> q2 = new Quantity<>(5, WeightUnit.KG);
+        Quantity<LengthUnit> q1 = new Quantity<>(10, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(2, LengthUnit.FEET);
 
-        assertEquals(2.0, q1.divide(q2));
+        assertEquals(new Quantity<>(8, LengthUnit.FEET), q1.subtract(q2));
     }
 
     @Test
@@ -61,8 +63,6 @@ class QuantityMeasurementAppTest
         assertEquals(new Quantity<>(1, WeightUnit.KG), q1.subtract(q2));
     }
 
-    /* ================= VOLUME ================= */
-
     @Test
     void given2LitreAnd500Ml_shouldReturn1Point5Litre()
     {
@@ -72,8 +72,28 @@ class QuantityMeasurementAppTest
         assertEquals(new Quantity<>(1.5, VolumeUnit.LITRE), q1.subtract(q2));
     }
 
+    /* ================= DIVISION ================= */
+
     @Test
-    void given1LitreAnd1Litre_shouldReturn1Ratio()
+    void given10FeetAnd2Feet_shouldReturn5()
+    {
+        Quantity<LengthUnit> q1 = new Quantity<>(10, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(2, LengthUnit.FEET);
+
+        assertEquals(5.0, q1.divide(q2));
+    }
+
+    @Test
+    void given10KgAnd5Kg_shouldReturn2()
+    {
+        Quantity<WeightUnit> q1 = new Quantity<>(10, WeightUnit.KG);
+        Quantity<WeightUnit> q2 = new Quantity<>(5, WeightUnit.KG);
+
+        assertEquals(2.0, q1.divide(q2));
+    }
+
+    @Test
+    void given1LitreAnd1Litre_shouldReturn1()
     {
         Quantity<VolumeUnit> q1 = new Quantity<>(1, VolumeUnit.LITRE);
         Quantity<VolumeUnit> q2 = new Quantity<>(1, VolumeUnit.LITRE);
@@ -81,7 +101,7 @@ class QuantityMeasurementAppTest
         assertEquals(1.0, q1.divide(q2));
     }
 
-    /* ================= SAFETY ================= */
+    /* ================= CROSS CATEGORY SAFETY ================= */
 
     @Test
     void givenDifferentCategories_shouldNotBeEqual()
