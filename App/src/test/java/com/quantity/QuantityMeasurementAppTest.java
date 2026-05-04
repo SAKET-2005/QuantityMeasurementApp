@@ -85,6 +85,7 @@ class QuantityMeasurementAppTest
         assertNotEquals(kg, gram);
     }
 
+    // WEIGHT TESTS
     @Test
     void given1KgAnd1000Gram_shouldAddTo2Kg()
     {
