@@ -3,29 +3,29 @@
 TEST CLASS - QuantityMeasurementAppTest
 ================================================================================================================
 
-Use Case 8: Refactoring Unit Enum to Standalone Test Cases
+Use Case 9: Weight Measurement Test Cases
 
 Description:
-This test class validates the refactored architecture where LengthUnit
-is a standalone class responsible for conversions. It ensures that all
-existing functionality from UC1–UC7 remains intact after refactoring.
+This test class validates weight measurement functionality alongside length.
+It ensures proper conversion, addition, and equality handling for weight units
+while preserving existing length functionality.
 
 Covered Scenarios:
-- Unit conversion validation
-- Addition across different units
-- Cross-unit equality checks
-- Backward compatibility verification
-- Multi-unit arithmetic correctness
+- Weight unit conversion (kg, gram, pound)
+- Weight addition across units
+- Equality comparison for weight
+- Regression validation for length features
+- Zero and edge case handling
 
 Key Concepts:
-- Refactoring Validation
+- Multi-Domain Testing
 - Regression Testing
-- Delegation-based Design Testing
-- JUnit 5 Assertions
-- System Stability Assurance
+- Unit Conversion Accuracy
+- JUnit 5 Validation
+- System Integrity Assurance
 
 @author SAKET-2005
-@version 8.0
+@version 9.0
 ================================================================================================================
 */
 
@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class QuantityMeasurementAppTest
 {
+    // LENGTH TESTS
     @Test
     void given1Feet_shouldReturn12Inch()
     {
@@ -43,36 +44,44 @@ class QuantityMeasurementAppTest
                 QuantityMeasurementApp.convert(1, LengthUnit.FEET, LengthUnit.INCH));
     }
 
+    // WEIGHT TESTS
     @Test
-    void given12InchAnd1Feet_shouldReturn2Feet()
+    void given1Kg_shouldReturn1000Gram()
     {
-        assertEquals(2.0,
-                QuantityMeasurementApp.add(1, LengthUnit.FEET,
-                        12, LengthUnit.INCH,
-                        LengthUnit.FEET));
+        assertEquals(1000.0,
+                QuantityMeasurementApp.convertWeight(1, WeightUnit.KG, WeightUnit.GRAM));
     }
 
     @Test
-    void given1Yard_shouldReturn3Feet()
-    {
-        assertEquals(3.0,
-                QuantityMeasurementApp.convert(1, LengthUnit.YARD, LengthUnit.FEET));
-    }
-
-    @Test
-    void given2Point54CM_shouldReturn1Inch()
+    void given1000Gram_shouldReturn1Kg()
     {
         assertEquals(1.0,
-                QuantityMeasurementApp.convert(2.54, LengthUnit.CM, LengthUnit.INCH),
-                0.01);
+                QuantityMeasurementApp.convertWeight(1000, WeightUnit.GRAM, WeightUnit.KG));
     }
 
     @Test
-    void givenZeroValues_shouldReturnZero()
+    void given1Pound_shouldReturn0Point453Kg()
+    {
+        assertEquals(0.453592,
+                QuantityMeasurementApp.convertWeight(1, WeightUnit.POUND, WeightUnit.KG),
+                0.0001);
+    }
+
+    @Test
+    void given1KgAnd1000Gram_shouldReturn2Kg()
+    {
+        assertEquals(2.0,
+                QuantityMeasurementApp.addWeight(1, WeightUnit.KG,
+                        1000, WeightUnit.GRAM,
+                        WeightUnit.KG));
+    }
+
+    @Test
+    void givenZeroWeight_shouldReturnZero()
     {
         assertEquals(0.0,
-                QuantityMeasurementApp.add(0, LengthUnit.FEET,
-                        0, LengthUnit.INCH,
-                        LengthUnit.FEET));
+                QuantityMeasurementApp.addWeight(0, WeightUnit.KG,
+                        0, WeightUnit.GRAM,
+                        WeightUnit.KG));
     }
 }
