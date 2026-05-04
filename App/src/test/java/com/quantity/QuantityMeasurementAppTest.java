@@ -3,29 +3,28 @@
 TEST CLASS - QuantityMeasurementAppTest
 ================================================================================================================
 
-Use Case 8: Refactoring Unit Enum to Standalone Test Cases
+Use Case 10: Generic Quantity Class Testing
 
 Description:
-This test class validates the refactored architecture where LengthUnit
-is a standalone class responsible for conversions. It ensures that all
-existing functionality from UC1–UC7 remains intact after refactoring.
+This test class validates the generic Quantity<U> implementation using both
+LengthUnit and WeightUnit categories.
 
 Covered Scenarios:
-- Unit conversion validation
-- Addition across different units
-- Cross-unit equality checks
-- Backward compatibility verification
-- Multi-unit arithmetic correctness
+- Generic equality comparison
+- Generic unit conversion
+- Generic addition operations
+- Cross-category safety validation
+- Regression support for UC1–UC9
 
 Key Concepts:
-- Refactoring Validation
+- Generic Testing
+- Type Safety Validation
 - Regression Testing
-- Delegation-based Design Testing
 - JUnit 5 Assertions
-- System Stability Assurance
+- Unified Test Strategy
 
 @author SAKET-2005
-@version 8.0
+@version 10.0
 ================================================================================================================
 */
 
@@ -37,42 +36,56 @@ import static org.junit.jupiter.api.Assertions.*;
 class QuantityMeasurementAppTest
 {
     @Test
-    void given1Feet_shouldReturn12Inch()
+    void givenLengthValues_shouldBeEqual()
     {
-        assertEquals(12.0,
-                QuantityMeasurementApp.convert(1, LengthUnit.FEET, LengthUnit.INCH));
+        Quantity<LengthUnit> q1 = new Quantity<>(1, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(12, LengthUnit.INCH);
+
+        assertEquals(q1, q2);
     }
 
     @Test
-    void given12InchAnd1Feet_shouldReturn2Feet()
+    void givenWeightValues_shouldBeEqual()
     {
-        assertEquals(2.0,
-                QuantityMeasurementApp.add(1, LengthUnit.FEET,
-                        12, LengthUnit.INCH,
-                        LengthUnit.FEET));
+        Quantity<WeightUnit> q1 = new Quantity<>(1, WeightUnit.KG);
+        Quantity<WeightUnit> q2 = new Quantity<>(1000, WeightUnit.GRAM);
+
+        assertEquals(q1, q2);
     }
 
     @Test
-    void given1Yard_shouldReturn3Feet()
+    void givenLengthAddition_shouldReturnCorrectResult()
     {
-        assertEquals(3.0,
-                QuantityMeasurementApp.convert(1, LengthUnit.YARD, LengthUnit.FEET));
+        Quantity<LengthUnit> q1 = new Quantity<>(1, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(12, LengthUnit.INCH);
+
+        assertEquals(new Quantity<>(2, LengthUnit.FEET), q1.add(q2));
     }
 
     @Test
-    void given2Point54CM_shouldReturn1Inch()
+    void givenWeightAddition_shouldReturnCorrectResult()
     {
-        assertEquals(1.0,
-                QuantityMeasurementApp.convert(2.54, LengthUnit.CM, LengthUnit.INCH),
-                0.01);
+        Quantity<WeightUnit> q1 = new Quantity<>(1, WeightUnit.KG);
+        Quantity<WeightUnit> q2 = new Quantity<>(1000, WeightUnit.GRAM);
+
+        assertEquals(new Quantity<>(2, WeightUnit.KG), q1.add(q2));
     }
 
     @Test
-    void givenZeroValues_shouldReturnZero()
+    void givenConversion_shouldReturnCorrectValue()
     {
-        assertEquals(0.0,
-                QuantityMeasurementApp.add(0, LengthUnit.FEET,
-                        0, LengthUnit.INCH,
-                        LengthUnit.FEET));
+        Quantity<LengthUnit> q = new Quantity<>(1, LengthUnit.FEET);
+        Quantity<LengthUnit> result = q.convertTo(LengthUnit.INCH);
+
+        assertEquals(new Quantity<>(12, LengthUnit.INCH), result);
+    }
+
+    @Test
+    void givenDifferentCategories_shouldNotBeEqual()
+    {
+        Quantity<LengthUnit> length = new Quantity<>(1, LengthUnit.FEET);
+        Quantity<WeightUnit> weight = new Quantity<>(1, WeightUnit.KG);
+
+        assertNotEquals(length, weight);
     }
 }

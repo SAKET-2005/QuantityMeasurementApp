@@ -3,29 +3,30 @@
 MAIN CLASS - QuantityMeasurementApp
 ================================================================================================================
 
-Use Case 8: Refactoring Unit Enum to Standalone
+Use Case 10: Generic Quantity Class with Unit Interface
 
 Description:
-This use case refactors UC1–UC7 by extracting LengthUnit into a standalone class.
-The responsibility of unit conversion is moved from QuantityLength to LengthUnit,
-improving cohesion and reducing coupling.
+This use case refactors the application into a generic and scalable design by introducing
+a common IMeasurable interface and a single generic Quantity<U> class.
 
 The system:
-- Uses LengthUnit as a standalone class for all conversions
-- Delegates conversion logic to LengthUnit
-- Simplifies QuantityLength to focus on arithmetic and comparison
-- Maintains backward compatibility with UC1–UC7
-- Supports scalable architecture for future measurement types
+- Eliminates duplicate QuantityLength and QuantityWeight classes
+- Introduces IMeasurable interface for all unit types
+- Refactors LengthUnit and WeightUnit to implement IMeasurable
+- Uses a single generic Quantity<U> class for all measurement categories
+- Ensures type safety using Java generics
+- Prevents cross-category comparisons (e.g., length vs weight)
+- Maintains all functionality from UC1–UC9
 
 Key Concepts:
-- Single Responsibility Principle (SRP)
-- Decoupling of Classes
-- Delegation Pattern
-- Scalable Architecture Design
-- Clean Code Refactoring
+- Generics in Java
+- Interface-based Design
+- DRY Principle (Don't Repeat Yourself)
+- Type Safety & Compile-time Checks
+- Scalable Architecture
 
 @author SAKET-2005
-@version 8.0
+@version 10.0
 ================================================================================================================
 */
 
@@ -33,68 +34,146 @@ package com.quantity;
 
 public class QuantityMeasurementApp
 {
-    public static double convert(double value, LengthUnit sourceUnit, LengthUnit targetUnit)
+    public static void main(String[] args)
     {
-        double baseValue = sourceUnit.toBaseUnit(value);
-        return targetUnit.fromBaseUnit(baseValue);
+        Quantity<LengthUnit> length1 = new Quantity<>(1, LengthUnit.FEET);
+        Quantity<LengthUnit> length2 = new Quantity<>(12, LengthUnit.INCH);
+
+        System.out.println("Length Equality: " + length1.equals(length2));
+        System.out.println("Length Addition: " + length1.add(length2));
+
+        Quantity<WeightUnit> weight1 = new Quantity<>(1, WeightUnit.KG);
+        Quantity<WeightUnit> weight2 = new Quantity<>(1000, WeightUnit.GRAM);
+
+        System.out.println("Weight Equality: " + weight1.equals(weight2));
+        System.out.println("Weight Addition: " + weight1.add(weight2));
+    }
+}
+
+interface IMeasurable
+{
+    double getConversionFactor();
+    double toBaseUnit(double value);
+    double fromBaseUnit(double baseValue);
+    String getUnitName();
+}
+
+enum LengthUnit implements IMeasurable
+{
+    FEET(1.0, "Feet"),
+    INCH(1.0 / 12.0, "Inch"),
+    YARD(3.0, "Yard"),
+    CM(0.0328084, "Centimeter");
+
+    private final double factor;
+    private final String name;
+
+    LengthUnit(double factor, String name)
+    {
+        this.factor = factor;
+        this.name = name;
     }
 
-    public static double add(double value1, LengthUnit unit1,
-                             double value2, LengthUnit unit2,
-                             LengthUnit targetUnit)
+    public double getConversionFactor() { return factor; }
+
+    public double toBaseUnit(double value) { return value * factor; }
+
+    public double fromBaseUnit(double baseValue) { return baseValue / factor; }
+
+    public String getUnitName() { return name; }
+}
+
+enum WeightUnit implements IMeasurable
+{
+    KG(1.0, "Kilogram"),
+    GRAM(0.001, "Gram"),
+    POUND(0.453592, "Pound");
+
+    private final double factor;
+    private final String name;
+
+    WeightUnit(double factor, String name)
     {
-        double base1 = unit1.toBaseUnit(value1);
-        double base2 = unit2.toBaseUnit(value2);
+        this.factor = factor;
+        this.name = name;
+    }
+
+    public double getConversionFactor() { return factor; }
+
+    public double toBaseUnit(double value) { return value * factor; }
+
+    public double fromBaseUnit(double baseValue) { return baseValue / factor; }
+
+    public String getUnitName() { return name; }
+}
+
+class Quantity<U extends IMeasurable>
+{
+    private final double value;
+    private final U unit;
+
+    public Quantity(double value, U unit)
+    {
+        if (unit == null || Double.isNaN(value) || Double.isInfinite(value))
+            throw new IllegalArgumentException("Invalid input");
+
+        this.value = value;
+        this.unit = unit;
+    }
+
+    public Quantity<U> convertTo(U targetUnit)
+    {
+        double base = unit.toBaseUnit(value);
+        double converted = targetUnit.fromBaseUnit(base);
+        return new Quantity<>(round(converted), targetUnit);
+    }
+
+    public Quantity<U> add(Quantity<U> other)
+    {
+        return add(other, this.unit);
+    }
+
+    public Quantity<U> add(Quantity<U> other, U targetUnit)
+    {
+        if (other == null) throw new IllegalArgumentException("Null quantity");
+
+        double base1 = unit.toBaseUnit(value);
+        double base2 = other.unit.toBaseUnit(other.value);
         double sum = base1 + base2;
-        return targetUnit.fromBaseUnit(sum);
+
+        double result = targetUnit.fromBaseUnit(sum);
+        return new Quantity<>(round(result), targetUnit);
     }
 
-    public static void main(String args[])
+    @Override
+    public boolean equals(Object obj)
     {
-        System.out.println("Convert 1 Feet to Inch: " +
-                convert(1, LengthUnit.FEET, LengthUnit.INCH));
+        if (this == obj) return true;
+        if (!(obj instanceof Quantity<?> that)) return false;
 
-        System.out.println("Add 1 Feet + 12 Inch in Feet: " +
-                add(1, LengthUnit.FEET, 12, LengthUnit.INCH, LengthUnit.FEET));
-    }
-}
+        if (this.unit.getClass() != that.unit.getClass())
+            return false;
 
-class LengthUnit
-{
-    private final double factorToFeet;
+        double base1 = unit.toBaseUnit(value);
+        double base2 = that.unit.toBaseUnit(that.value);
 
-    LengthUnit(double factorToFeet)
-    {
-        this.factorToFeet = factorToFeet;
+        return Double.compare(base1, base2) == 0;
     }
 
-    public double toBaseUnit(double value)
+    @Override
+    public int hashCode()
     {
-        return value * factorToFeet;
+        return Double.hashCode(unit.toBaseUnit(value));
     }
 
-    public double fromBaseUnit(double baseValue)
+    @Override
+    public String toString()
     {
-        return baseValue / factorToFeet;
+        return value + " " + unit.getUnitName();
     }
 
-    public static final LengthUnit FEET = new LengthUnit(1.0);
-    public static final LengthUnit INCH = new LengthUnit(1.0 / 12.0);
-    public static final LengthUnit YARD = new LengthUnit(3.0);
-    public static final LengthUnit CM = new LengthUnit(0.0328084);
-}
-
-class QuantityLength
-{
-    private double valueInFeet;
-
-    QuantityLength(double value, LengthUnit unit)
+    private double round(double val)
     {
-        this.valueInFeet = unit.toBaseUnit(value);
-    }
-
-    public boolean isEqual(QuantityLength other)
-    {
-        return this.valueInFeet == other.valueInFeet;
+        return Math.round(val * 100.0) / 100.0;
     }
 }
